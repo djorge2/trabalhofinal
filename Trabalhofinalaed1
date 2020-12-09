@@ -1,0 +1,58 @@
+#include <iostream>                                                                                     //Bibliotecas para desenvolvimento em c++ em geral
+#include <fstream>
+#include <string>
+#include <speechapi_cxx.h>
+#include <locale.h>
+
+using namespace std;                                                                                    //Necessárias para o Azure
+using namespace Microsoft::CognitiveServices::Speech;
+using namespace Microsoft::CognitiveServices::Speech::Audio;
+
+auto autenticacao = SpeechConfig::FromSubscription("8b00bf9f54c942afa0856d3f72056be4", "brazilsouth"); //recebe a autenticacao do serviço cognitivo
+auto requisicao_textofala = SpeechSynthesizer::FromConfig(autenticacao);                               //configuração da sintetização da fala (transformar texto para fala)
+auto audio_config = AudioConfig::FromDefaultMicrophoneInput();                                         //configuração do microfone
+auto requisicao_falatexto = SpeechRecognizer::FromConfig(autenticacao, audio_config);                  //reconhecimento da fala
+
+void texto_em_fala(string Texto)
+{
+    cout << Texto + "\n";                                                                              // Imprime na tela o texto com uma quebra de linha
+    requisicao_textofala->SpeakTextAsync(Texto).get();                                                 // Converte o texto em fala
+}
+
+string fala_em_texto(){
+    auto resultado = requisicao_falatexto->RecognizeOnceAsync().get();                                 //Variavel guarda o retorno da API (texto recebido);
+    cout << resultado->Text + "\n";                                                                    //Imprime o texto recebido;
+    return resultado->Text;                                                                            //Retorna string convertido em texto;
+}
+
+int main()
+{
+    setlocale(LC_ALL, "pt-BR");                                                                        // reconhecimento de caracteres especiais;
+    autenticacao->SetSpeechRecognitionLanguage("pt-BR");                                               // configura para portugues BR;
+    autenticacao->SetSpeechSynthesisLanguage("pt-BR");                                                 // Sintetiza a linguagem em pt_BR;
+    autenticacao->SetSpeechSynthesisVoiceName("pt-BR-Daniel");                                         // Opção de voz;
+    requisicao_textofala = SpeechSynthesizer::FromConfig(autenticacao);                                // redefine texto_fala e
+    requisicao_falatexto = SpeechRecognizer::FromConfig(autenticacao, audio_config);                   // fala_texto configurados;
+
+    try
+    {
+        texto_em_fala("SISTEMA LIGADO");
+        texto_em_fala("Qual é o seu nome?");
+        string nome = fala_em_texto();
+        texto_em_fala("Olá " + nome + "! Informe a sua senha: ");
+        string senha = fala_em_texto();
+        texto_em_fala("Verificando...");
+
+        if (senha == ("123456.")) {
+            texto_em_fala("ACESSO CONCEDIDO");
+        }
+        else {
+            texto_em_fala("ACESSO NEGADO");
+        }
+    }
+    catch (exception e)
+    {
+        cout << e.what();
+    }
+    return 0;
+}
