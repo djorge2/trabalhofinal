@@ -13,17 +13,173 @@ auto requisicao_textofala = SpeechSynthesizer::FromConfig(autenticacao);        
 auto audio_config = AudioConfig::FromDefaultMicrophoneInput();                                         //configuração do microfone
 auto requisicao_falatexto = SpeechRecognizer::FromConfig(autenticacao, audio_config);                  //reconhecimento da fala
 
+/*
+    Descrição: Procedimento que imprime na tela o texto com uma quebra de linha. Converte o texto em fala.
+    Entrada: Variável do tipo string.
+    Saída: Texto convertido em fala.
+*/
 void texto_em_fala(string Texto)
 {
-    cout << Texto + "\n";                                                                              // Imprime na tela o texto com uma quebra de linha
-    requisicao_textofala->SpeakTextAsync(Texto).get();                                                 // Converte o texto em fala
+    cout << Texto + "\n";
+    requisicao_textofala->SpeakTextAsync(Texto).get();
 }
 
-string fala_em_texto(){
+/*
+    Descrição: Função que recebe o texto em voz (variável auto) e retorna string convertido em texto.
+    Entrada: Recebe texto em voz (auto).
+    Saída: Texto impresso na tela.
+*/
+string fala_em_texto() {
     auto resultado = requisicao_falatexto->RecognizeOnceAsync().get();                                 //Variavel guarda o retorno da API (texto recebido);
-    cout << resultado->Text + "\n";                                                                    //Imprime o texto recebido;
-    return resultado->Text;                                                                            //Retorna string convertido em texto;
+    cout << resultado->Text + "\n";
+    return resultado->Text;
 }
+
+/*
+    Descrição: Procedimento que imprime texto perguntando o nome do usuário.
+    Entrada: pergunta através do da função texto_em_fala.
+    Saída: Texto impresso na tela e falado em voz pela função texto_em_fala.
+*/
+void identificacao() {
+    texto_em_fala("OI, EU SOU JARVIS! POSSO SER SUA CALCULADORA OU SEU JOGO!");
+    texto_em_fala("Qual o seu nome?");
+}
+
+/*
+    Descrição: Função que recebe o texto em voz (variável auto) e retorna string convertido em texto.
+    Entrada: Variável "nome" do tipo string.
+    Saída: Texto impresso na tela e falado através da função texto_em_fala.
+*/
+void escolhe(string nome) {
+    texto_em_fala("Seja bem vindo " + nome + ".");
+    texto_em_fala("O que deseja?");
+    texto_em_fala("Calculadora");
+    texto_em_fala("Jogo");
+    texto_em_fala("Sair");
+}
+
+/*
+    Descrição: Procedimento que faz as quatro operações básicas da matemática (soma, subtração, multiplicação e divisão), a escolha do usuário.
+    Entrada: Usuário digita dois valores inteiros e escolhe, através da voz, uma opção.
+    Saída: Texto em voz e impresso na tela, e o resultado da operação desejada.
+*/
+
+void calculadora() {
+    int valor1;
+    int valor2;
+    string opcao;
+    texto_em_fala("Digite dois valores:");
+    cin >> valor1;                                                                          // Usuário digita os valores.
+    fflush(stdin);
+    cin >> valor2;
+    fflush(stdin);
+    texto_em_fala("O que gostaria de fazer?\nSomar\nSubtrair\nMultiplicar\nDividir");
+    opcao = fala_em_texto();                                                                // Usuário escolhe por voz uma opção (Somar/subtrair/multiplicar/dividir).
+
+    if (opcao == ("Somar.")) {
+        int soma = (valor1 + valor2);                                                      // soma os valores digitados e guarda na variável soma.
+        texto_em_fala("Resultado igual a " + to_string(soma) + "!");                       // Texto em voz e impresso na tela com resultado.
+    }
+    else if (opcao == ("Subtrair.")) {
+        int subtracao = (valor1 - valor2);                                                 // subtrai os valores digitados e guarda na variável subtracao.
+        texto_em_fala("Resultado igual a " + to_string(subtracao) + "!");                  // Texto em voz e impresso na tela com resultado.
+    }
+    else if (opcao == ("Multiplicar.")) {
+        int produto = (valor1 * valor2);                                                   // multiplica os valores digitados e guarda na variável produto.
+        texto_em_fala("Resultado igual a " + to_string(produto) + "!");                    // Texto em voz e impresso na tela com resultado.
+    }
+    else if (opcao == ("Dividir.")) {
+        float quociente = ((float)valor1 / (float)valor2);                                 // divide os valores digitados e guarda na variável quociente.
+        texto_em_fala("Resultado igual a " + to_string(quociente) + "!");                  // Texto em voz e impresso na tela com resultado.
+    }
+    else {
+        texto_em_fala("Não entendi.");                                                     // Se o usuario escolhe uma opão inexistente, o programa diz "Não entendi".  
+    }
+    printf("\n\n");
+}
+
+/*
+    Descrição: Procedimento que faz perguntas de conhecimentos gerais para o usuário e o usuário responde por voz. Para cada pergunta certa, usuário ganha pontos.
+    Entrada: Variável "pontos" do tipo inteira que guarda os pontos do usuário.
+             Resposta em voz convertida em string através da função fala_em_texto.
+    Saída: Pontuação do usuário na variável inteira "pontos".
+           Texto impresso e falado para cada pergunta ou resposta.
+*/
+void jogo_quiz() {
+    int pontos = 0;
+    texto_em_fala("Vamos jogar um pouco, cada pergunta certa vale 1, 2 ou 3 pontos dependendo do nivel de dificuldade");
+    texto_em_fala("Regras do Jogo");
+    texto_em_fala("Primeira Regra: Para cada pergunta, tem uma resposta de uma palavra ou um numero. Caso seja diferente será dito");
+    texto_em_fala("Segunda Regra: Caso não saiba a resposta, fale: não sei");
+    texto_em_fala("Vamos começar:");
+
+    texto_em_fala("Qual o menor pais do Mundo?");
+    string resp1 = fala_em_texto();
+    if (resp1 == "Vaticano.") {                                             // Se usuário responde corretamente ganha 1 ponto.
+        texto_em_fala("Correto! Ganha 1 ponto");
+        pontos += pontos + 1;
+    }
+    else {
+        texto_em_fala("A resposta correta é Vaticano! Mais sorte na proxima vez.");
+    }
+
+    texto_em_fala("Qual a capital do Canada?");
+    string resp2 = fala_em_texto();                                         // Se usuário responde corretamente ganha 2 pontos.
+    if (resp2 == "Ottawa.") {
+        texto_em_fala("Correto! Ganha 2 pontos");
+        pontos += pontos + 2;
+    }
+    else {                                                                  // Se o usuário responde algo diferente, não ganha pontos.
+        texto_em_fala("A resposta correta é Ottawa! Mais sorte na proxima vez.");
+    }
+
+    texto_em_fala("Qual o livro mais vendido do mundo depois da Bíblia?(Tem duas palavras)");
+    string resp3 = fala_em_texto();                                        // Se usuário responde corretamente ganha 3 pontos.
+    if (resp3 == "Harry Potter.") {
+        texto_em_fala("Correto! Ganha 3 pontos");
+        pontos += pontos + 3;
+    }
+    else {                                                                 // Se o usuário responde algo diferente, não ganha pontos.
+        texto_em_fala("A resposta correta é Harry Potter! Mais sorte na proxima vez.");
+    }
+
+    texto_em_fala("Quantos byts tem uma variavel int?");
+    string resp4 = fala_em_texto();                                        // Se usuário responde corretamente ganha 1 ponto.
+    if (resp4 == "4.") {
+        texto_em_fala("Correto! Ganha 1 ponto");
+        pontos += pontos + 1;
+    }
+    else {                                                                 // Se o usuário responde algo diferente, não ganha pontos.
+        texto_em_fala("A resposta correta é 4! Mais sorte na proxima vez.");
+    }
+
+    texto_em_fala("Quem foi a primeira pessoa a fazer o primeiro algoritmo na história?(Duas Palavras)");
+    string resp5 = fala_em_texto();                                       // Se usuário responde corretamente ganha 2 pontos.
+    if (resp5 == "Ada Lovelace.") {
+        texto_em_fala("Correto! Ganha 2 ponto");
+        pontos += pontos + 2;
+    }
+    else {                                                                // Se o usuário responde algo diferente, não ganha pontos.
+        texto_em_fala("A resposta correta é Ada Lovelace! Mais sorte na proxima vez.");
+    }
+
+    texto_em_fala("Ultima pergunta, valendo 5 pontos");                    // Se usuário responde corretamente ganha 5 pontos.
+    texto_em_fala("Qual a resposta da vida, do universo e tudo mais?");
+    resp4 = fala_em_texto();
+    if (resp4 == ("42.")) {
+        texto_em_fala("Correto! Ganha 5 ponto");
+        pontos += pontos + 5;
+    }
+    else {                                                                 // Se o usuário responde algo diferente, não ganha pontos.
+        texto_em_fala("A resposta correta é 42! Referencia a um livro de Douglas Adams");
+        texto_em_fala("Mais sorte na proxima vez.");
+    }
+
+    texto_em_fala("Fim do Jogo!");
+    texto_em_fala("Calculando pontuação total...");
+    texto_em_fala("Total:" + to_string(pontos) + " pontos!");              // Exibe em texto por voz e impresso na tela a pontuação total. Função to_string converte numero para string.  
+}
+
 
 int main()
 {
@@ -34,25 +190,31 @@ int main()
     requisicao_textofala = SpeechSynthesizer::FromConfig(autenticacao);                                // redefine texto_fala e
     requisicao_falatexto = SpeechRecognizer::FromConfig(autenticacao, audio_config);                   // fala_texto configurados;
 
-    try
-    {
-        texto_em_fala("SISTEMA LIGADO");
-        texto_em_fala("Qual é o seu nome?");
-        string nome = fala_em_texto();
-        texto_em_fala("Olá " + nome + "! Informe a sua senha: ");
-        string senha = fala_em_texto();
-        texto_em_fala("Verificando...");
+    int valor1;
+    int valor2;
+    string opcao;
 
-        if (senha == ("123456.")) {
-            texto_em_fala("ACESSO CONCEDIDO");
+    identificacao();                                                                                   // Chama o procedimento identificacao.
+    string nome = fala_em_texto();
+
+    do {
+        escolhe(nome);                                                                                 // Chama o procedimento escolhe, passando a variável nome.
+
+        string escolha = fala_em_texto();
+
+        if (escolha == "Calculadora.") {                                                               // Se o usuário escolhe a opção calculadora, chama o procedimento calculadora.
+            calculadora();
+        }
+        else if (escolha == "Jogo.") {                                                                 // Se o usuário escolhe a opção jogo, chama o procedimento jogo_quiz.
+            jogo_quiz();
+        }
+        else if (escolha == ("Sair.")) {                                                               // Se o usuário escolhe a opção sair, o progrma retorna 0 e é encerrado.
+            return 0;
         }
         else {
-            texto_em_fala("ACESSO NEGADO");
+            texto_em_fala("Escolha inválida");                                                         // Se o usuário escolhe uma opção inexistente, o programa exibe "Escolha inválida".
         }
-    }
-    catch (exception e)
-    {
-        cout << e.what();
-    }
+    } while (opcao != ("Sair."));                                                                      // O programa vai sempre voltar na escolha entre Jogo, Calculadora e Sair,
+                                                                                                       // enquanto o usuário não escolher Sair.
     return 0;
 }
